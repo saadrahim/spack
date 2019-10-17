@@ -1037,17 +1037,19 @@ class Environment(object):
 
     def environment_modifications_for_spec(self, spec, view=None):
         """List of environment modifications to be processed."""
-        # Modifications guessed inspecting the spec prefix
         spec = spec.copy()
         if view:
             spec.prefix = Prefix(view.view().get_projection_for_spec(spec))
+
+        # generic environment modifications determined by inspecting the spec
+        # prefix
         env = spack.util.environment.inspect_path(
             spec.prefix,
             self.prefix_inspections,
             exclude=spack.util.environment.is_system_path
         )
 
-        # Let the extendee/dependency modify their extensions/dependencies
+        # Let the extendee/dependency modify their extensions/dependents
         # before asking for package-specific modifications
         env.extend(
             build_env.modifications_from_dependencies(
@@ -1064,18 +1066,25 @@ class Environment(object):
         env_mod = spack.util.environment.EnvironmentModifications()
 
         if default_view_name not in self.views:
+            # No default view to add to shell
             env_mod.shell_modifications(shell)
 
         for _, spec in self.concretized_specs():
             if spec in self.default_view:
                 env_mod.extend(self.environment_modifications_for_spec(
                     spec, self.default_view))
+
+        # deduplicate paths from specs mapped to the same location
+        for env_var in env_mod.group_by_name():
+            env_mod.prune_duplicate_paths(env_var)
+
         return env_mod.shell_modifications(shell)
 
     def rm_default_view_from_shell(self, shell):
         env_mod = spack.util.environment.EnvironmentModifications()
 
         if default_view_name not in self.views:
+            # No default view to add to shell
             return env_mod.shell_modifications(shell)
 
         for _, spec in self.concretized_specs():

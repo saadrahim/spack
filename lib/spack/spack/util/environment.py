@@ -486,13 +486,6 @@ class EnvironmentModifications(object):
         # unset
         return (type(var_updates[-1]) == UnsetEnv)
 
-    def blacklist(self, banned):
-        """
-        Remove all modifications to variable names in banned.
-        """
-        self.env_modifications = list(filter(
-            lambda x: x.name not in banned, self.env_modifications))
-
     def clear(self):
         """
         Clears the current list of modifications
@@ -524,7 +517,7 @@ class EnvironmentModifications(object):
             elif type(envmod) == AppendFlagsEnv:
                 rev.remove_flags(envmod.value)
             else:
-                # This is an un-reversable operations
+                # This is an un-reversable operation
                 tty.warn("Skipping reversal of unreversable operation"
                          "%s %s" % (type(envmod), envmod.name))
 
