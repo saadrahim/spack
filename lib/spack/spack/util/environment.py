@@ -226,6 +226,16 @@ class UnsetEnv(NameModifier):
         env.pop(self.name, None)
 
 
+class RemoveFlagsEnv(NameValueModifier):
+
+    def execute(self, env):
+        environment_value = env.get(self.name, '')
+        flags = environment_value.split(
+            self.separator) if environment_value else []
+        flags = [f for f in flags if f != self.value]
+        env[self.name] = self.separator.join(flags)
+
+
 class SetPath(NameValueModifier):
 
     def execute(self, env):
@@ -372,6 +382,21 @@ class EnvironmentModifications(object):
         item = UnsetEnv(name, **kwargs)
         self.env_modifications.append(item)
 
+    def remove_flags(self, name, value, sep=' ', **kwargs):
+        """
+        Stores in the current object a request to remove flags from an
+        env variable
+
+        Args:
+            name: name of the environment variable to be removed from
+            value: value to remove to the environment variable
+            sep: separator to assume for environment variable
+        """
+        kwargs.update(self._get_outside_caller_attributes())
+        kwargs.update({'separator': sep})
+        item = RemoveFlagsEnv(name, value, **kwargs)
+        self.env_modifications.append(item)
+
     def set_path(self, name, elements, **kwargs):
         """Stores a request to set a path generated from a list.
 
@@ -461,11 +486,50 @@ class EnvironmentModifications(object):
         # unset
         return (type(var_updates[-1]) == UnsetEnv)
 
+    def blacklist(self, banned):
+        """
+        Remove all modifications to variable names in banned.
+        """
+        self.env_modifications = list(filter(
+                lambda x: x.name not in banned, self.env_modifications))
+
     def clear(self):
         """
         Clears the current list of modifications
         """
         self.env_modifications = []
+
+    def reversed(self):
+        """
+        Returns the EnvironmentModifications object that will reverse self
+
+        Only creates reversals for additions to the environment, as reversing
+        ``unset`` and ``remove_path`` modifications is impossible.
+
+        Reversable operations are set(), prepend_path(), append_path(),
+        set_path(), and append_flags().
+        """
+        rev = EnvironmentModifications()
+
+        for envmod in reversed(self.env_modifications):
+            if type(envmod) == SetEnv:
+                rev.unset(envmod.name)
+            elif type(envmod) == AppendPath:
+                rev.remove_path(envmod.name, envmod.value)
+            elif type(envmod) == PrependPath:
+                rev.remove_path(envmod.name, envmod.value)
+            elif type(envmod) == SetPath:
+                for path in envmod.value:
+                    rev.remove_path(envmod.name, path)
+            elif type(envmod) == AppendFlagsEnv:
+                rev.remove_flags(envmod.value)
+            else:
+                # This is an un-reversable operations
+                tty.warn("Skipping reversal of unreversable operation"
+                         "%s %s %s" % (type(envmod),
+                                       envmod.name,
+                                       getattr(envmod, value, '')))
+        return rev
 
     def apply_modifications(self):
         """Applies the modifications and clears the list."""
@@ -485,7 +549,8 @@ class EnvironmentModifications(object):
                 x.execute(new_env)
 
         cmds = ''
-        for name in set(new_env) & set(os.environ):
+
+        for name in set(new_env) | set(os.environ):
             new = new_env.get(name, None)
             old = os.environ.get(name, None)
             if new != old:
