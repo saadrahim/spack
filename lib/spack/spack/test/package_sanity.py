@@ -173,13 +173,20 @@ def test_prs_update_old_api():
     failing = []
     for file in changed_package_files:
         name = os.path.basename(os.path.dirname(file))
-        pkg = spack.repo.get(name)
 
-        # Check for old APIs
-        failed = (hasattr(pkg, 'setup_environment') or
-                  hasattr(pkg, 'setup_dependent_environment'))
-        if failed:
-            failing.append(pkg)
+        try:
+            pkg = spack.repo.get(name)
+        except spack.repo.UnknownPackageError:
+            # This package is from the mock repo; does not necessarily require
+            # an update.
+            pass
+        else:
+            # Check for old APIs
+            failed = (hasattr(pkg, 'setup_environment') or
+                      hasattr(pkg, 'setup_dependent_environment'))
+            if failed:
+                failing.append(pkg)
+
     msg = 'there are {0} packages still using old APIs in this PR [{1}]'
     assert not failing, msg.format(
         len(failing), ','.join(x.name for x in failing)
