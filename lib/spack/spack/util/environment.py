@@ -491,7 +491,7 @@ class EnvironmentModifications(object):
         Remove all modifications to variable names in banned.
         """
         self.env_modifications = list(filter(
-                lambda x: x.name not in banned, self.env_modifications))
+            lambda x: x.name not in banned, self.env_modifications))
 
     def clear(self):
         """
@@ -526,9 +526,8 @@ class EnvironmentModifications(object):
             else:
                 # This is an un-reversable operations
                 tty.warn("Skipping reversal of unreversable operation"
-                         "%s %s %s" % (type(envmod),
-                                       envmod.name,
-                                       getattr(envmod, value, '')))
+                         "%s %s" % (type(envmod), envmod.name))
+
         return rev
 
     def apply_modifications(self):

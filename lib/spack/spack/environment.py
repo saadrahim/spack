@@ -32,7 +32,7 @@ import spack.build_environment as build_env
 
 from spack.util.prefix import Prefix
 from spack.filesystem_view import YamlFilesystemView
-from spack.util.environment import EnvironmentModifications
+import spack.util.environment
 import spack.architecture as architecture
 from spack.spec import Spec
 from spack.spec_list import SpecList, InvalidSpecConstraintError
@@ -1033,7 +1033,7 @@ class Environment(object):
         'lib/pkgconfig': ['PKG_CONFIG_PATH'],
         'lib64/pkgconfig': ['PKG_CONFIG_PATH'],
         '': ['CMAKE_PREFIX_PATH']
-        }
+    }
 
     def environment_modifications_for_spec(self, spec, view=None):
         """List of environment modifications to be processed."""
@@ -1069,7 +1069,7 @@ class Environment(object):
         for _, spec in self.concretized_specs():
             if spec in self.default_view:
                 env_mod.extend(self.environment_modifications_for_spec(
-                        spec, self.default_view))
+                    spec, self.default_view))
         return env_mod.shell_modifications(shell)
 
     def rm_default_view_from_shell(self, shell):
