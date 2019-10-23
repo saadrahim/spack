@@ -788,6 +788,8 @@ def fork(pkg, function, dirty, fake):
         # simultaneously reading from the original stdin. But, we assume
         # that the parent process is not going to read from it till we
         # are done with the child, so we undo Python's precaution.
+        print( input_stream)
+        print (child_pipe)
         if input_stream is not None:
             sys.stdin = input_stream
 

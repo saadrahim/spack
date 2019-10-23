@@ -13,7 +13,7 @@ import llnl.util.tty as tty
 
 #: whether we should write stack traces or short error messages
 #: this is module-scoped because it needs to be set very early
-debug = False
+debug = True
 
 
 class SpackError(Exception):

@@ -104,13 +104,13 @@ case "$command" in
     cpp)
         mode=cpp
         ;;
-    cc|c89|c99|gcc|clang|armclang|icc|pgcc|xlc|xlc_r|fcc)
+    hcc|cc|c89|c99|gcc|clang|armclang|icc|pgcc|xlc|xlc_r|fcc)
         command="$SPACK_CC"
         language="C"
         comp="CC"
         lang_flags=C
         ;;
-    c++|CC|g++|clang++|armclang++|icpc|pgc++|xlc++|xlc++_r|FCC)
+    hcc|c++|CC|g++|clang++|armclang++|icpc|pgc++|xlc++|xlc++_r|FCC)
         command="$SPACK_CXX"
         language="C++"
         comp="CXX"
