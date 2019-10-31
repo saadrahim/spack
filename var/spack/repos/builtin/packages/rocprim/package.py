@@ -29,7 +29,10 @@ class Rocprim(CMakePackage):
     # FIXME: Add a proper url for your package's homepage here.
     homepage = "http://www.example.com"
     url      = "https://github.com/ROCmSoftwarePlatform/rocPRIM/archive/2.9.0.tar.gz"
+#    url      = "https://github.com/saadrahim/rocPRIM/archive/1.0.0.tar.gz"
 
+    version('1.0.1', sha256='aebe30a55a9616be8678d8978d90ff1f23e9bc01836b568c412d41d0c3d38bed')
+    version('1.0.0', sha256='091f7d1f41b98a6548b774255969da21fa4069e424a24f7ea8c509f5056b638b')
     version('2.9.0', sha256='9e4db3ecd344abfacde3e71f429df5f76174b2766632d07c3e487eba08553227')
     version('2.8.0', sha256='35e2120f113f0925ed9eddc7965643688d0819b585570e0afb208f994f35c8ff')
     version('2.7.2', sha256='2cf0962926bb6b74cc55b5f50c1bc1fe38edf6eb236b4157f75c29b599c8d7e6')
@@ -39,20 +42,22 @@ class Rocprim(CMakePackage):
     depends_on('cmake@3.5.1:', type='build')
     # FIXME: Add dependencies if required.
     # depends_on('foo')
-    def install(self, spec, prefix):
-        env.set('LD_LIBRARY_PATH', '/opt/rocm/lib:/opt/rocm/hcc/lib')
+ #   def install(self, spec, prefix):
+        #env.set('LD_LIBRARY_PATH', '/opt/rocm/lib:/opt/rocm/hcc/lib')
+        #env.set('amd_comgr_DIR', '/opt/rocm/lib/cmake/amd_comgr/')
         # FIXME: Unknown build system
-        cmake("-G \"Tests\" -D CMAKE_C_COMPILER=hcc -D CMAKE_CXX_COMPILER=hcc /opt/rocm/bin/")
-        make()
-        make('install')
+#        cmake()
+#        make()
+#        make('install')
     def cmake_args(self):
 #        args = ["-DCMAKE_C_COMPILER=/opt/rocm/bin/hcc -DCMAKE_CXX_COMPILER=/opt/rocm/bin/hcc -DBUILD_BENCHMARK=OFF"]
 
-        args = ['-DCMAKE_C_COMPILER=/opt/rocm/bin/hipcc',
-                '-DCMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc',
-                '-DCMAKE_MODULE_PATH=/opt/rocm/lib/cmake/:/opt/rocm/:/opt/rocm/lib/:/opt/rocm/lib/cmake/amd_comgr:/opt/rocm/share/amd_comgr',
-                '-DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/rocm/share/amd_comgr:/opt/rocm/lib/:/opt/rocm/lib/cmake/amd_comgr/:/opt/rocm:/opt/rocm/hip/lib/cmake/:/opt/rocm/hcc:/opt/rocm/hip',
-                '-DBUILD_TEST=OFF']
+        args = ['-DCMAKE_C_COMPILER=/opt/rocm/bin/hcc',
+                '-DCMAKE_CXX_COMPILER=/opt/rocm/bin/hcc',
+#                '-DCMAKE_MODULE_PATH=/opt/rocm/lib/cmake/:/opt/rocm/:/opt/rocm/lib/:/opt/rocm/lib/cmake/amd_comgr:/opt/rocm/share/amd_comgr:/opt/rocm/hip/lib:/usr/share/cmake-3.5/Modules/',
+#                '-DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/rocm/share/amd_comgr:/opt/rocm/lib/:/opt/rocm/lib/cmake/amd_comgr/:/opt/rocm:/opt/rocm/hip/lib/cmake/:/opt/rocm/hcc:/opt/rocm/hip:/opt/rocm/hip/lib',
+                '-DBUILD_TEST=OFF',
+                '-Damd_comgr_DIR=/opt/rocm/lib/cmake/amd_comgr/']
         #        if self.spec.satisfies("^dyninst@9.3.0:"):
         #            std.flag = self.compiler.cxx_flag
         #            args.append("-DCMAKE_CXX_FLAGS='{0}' -fpermissive'".format(
